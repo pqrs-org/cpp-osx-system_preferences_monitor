@@ -6,25 +6,24 @@
 
 #include <pqrs/json.hpp>
 #include <pqrs/osx/iokit_types/extra/nlohmann_json.hpp>
-#include <pqrs/osx/system_preferences/keyboard_type.hpp>
+#include <pqrs/osx/system_preferences/keyboard_type_key.hpp>
 #include <pqrs/osx/system_preferences/properties.hpp>
 
 namespace pqrs {
 namespace osx {
 namespace system_preferences {
 
-// keyboard_type
+// keyboard_type_key
 
-inline void to_json(nlohmann::json& j, const keyboard_type& value) {
+inline void to_json(nlohmann::json& j, const keyboard_type_key& value) {
   j = nlohmann::json::object({
       {"vendor_id", value.get_vendor_id()},
       {"product_id", value.get_product_id()},
       {"country_code", value.get_country_code()},
-      {"keyboard_type", value.get_keyboard_type()},
   });
 }
 
-inline void from_json(const nlohmann::json& j, keyboard_type& value) {
+inline void from_json(const nlohmann::json& j, keyboard_type_key& value) {
   using namespace std::string_literals;
 
   if (!j.is_object()) {
@@ -49,13 +48,6 @@ inline void from_json(const nlohmann::json& j, keyboard_type& value) {
     } else if (k == "country_code") {
       try {
         value.set_country_code(v.get<osx::iokit_hid_country_code>());
-      } catch (json::unmarshal_error& e) {
-        throw json::unmarshal_error(k + " error: "s + e.what());
-      }
-
-    } else if (k == "keyboard_type") {
-      try {
-        value.set_keyboard_type(v.get<osx::iokit_keyboard_type>());
       } catch (json::unmarshal_error& e) {
         throw json::unmarshal_error(k + " error: "s + e.what());
       }
@@ -103,15 +95,11 @@ inline void from_json(const nlohmann::json& j, properties& value) {
         throw json::unmarshal_error("`"s + k + "` must be array, but is `"s + v.dump() + "`"s);
       }
 
-      std::unordered_set<keyboard_type> map;
-      for (const auto t : v) {
-        try {
-          map.insert(t.get<keyboard_type>());
-        } catch (json::unmarshal_error& e) {
-          throw json::unmarshal_error("`"s + k + "` entry error: "s + e.what());
-        }
+      try {
+        value.set_keyboard_types(v.get<std::unordered_map<keyboard_type_key, iokit_keyboard_type>>());
+      } catch (std::exception& e) {
+        throw json::unmarshal_error("keyboard_types error: "s + e.what());
       }
-      value.set_keyboard_types(map);
 
     } else {
       throw json::unmarshal_error("unknown key: `"s + k + "`"s);

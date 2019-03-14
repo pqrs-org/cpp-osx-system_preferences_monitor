@@ -4,11 +4,11 @@
 // Distributed under the Boost Software License, Version 1.0.
 // (See http://www.boost.org/LICENSE_1_0.txt)
 
-#include "keyboard_type.hpp"
+#include "keyboard_type_key.hpp"
 #include "system_preferences.hpp"
 #include <pqrs/cf/string.hpp>
 #include <pqrs/hash.hpp>
-#include <unordered_set>
+#include <unordered_map>
 
 namespace pqrs {
 namespace osx {
@@ -35,11 +35,11 @@ public:
     scroll_direction_is_natural_ = value;
   }
 
-  const std::unordered_set<keyboard_type> get_keyboard_types(void) const {
+  const std::unordered_map<keyboard_type_key, iokit_keyboard_type> get_keyboard_types(void) const {
     return keyboard_types_;
   }
 
-  void set_keyboard_types(const std::unordered_set<keyboard_type>& value) {
+  void set_keyboard_types(const std::unordered_map<keyboard_type_key, iokit_keyboard_type>& value) {
     keyboard_types_ = value;
   }
 
@@ -89,10 +89,10 @@ public:
                 auto country_code = iokit_hid_country_code(std::stoll(country_code_string));
 
                 if (auto value_number = pqrs::cf::make_number<int8_t>(value)) {
-                  self->keyboard_types_.insert(keyboard_type(vendor_id,
-                                                             product_id,
-                                                             country_code,
-                                                             iokit_keyboard_type(*value_number)));
+                  auto k = keyboard_type_key(vendor_id,
+                                             product_id,
+                                             country_code);
+                  self->keyboard_types_[k] = iokit_keyboard_type(*value_number);
                 }
               } catch (...) {
               }
@@ -115,7 +115,7 @@ public:
 private:
   bool use_fkeys_as_standard_function_keys_;
   bool scroll_direction_is_natural_;
-  std::unordered_set<keyboard_type> keyboard_types_;
+  std::unordered_map<keyboard_type_key, iokit_keyboard_type> keyboard_types_;
 };
 } // namespace system_preferences
 } // namespace osx
