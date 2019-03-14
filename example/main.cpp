@@ -29,12 +29,12 @@ int main(void) {
                 << std::endl;
 
       std::cout << "  keyboard_types: " << std::endl;
-      for (const auto& t : properties_ptr->get_keyboard_types()) {
+      for (const auto& [k, v] : properties_ptr->get_keyboard_types()) {
         std::cout << "    {" << std::endl;
-        std::cout << "      vendor_id: " << t.get_vendor_id() << std::endl;
-        std::cout << "      product_id: " << t.get_product_id() << std::endl;
-        std::cout << "      country_code: " << t.get_country_code() << std::endl;
-        std::cout << "      keyboard_type: " << t.get_keyboard_type() << std::endl;
+        std::cout << "      vendor_id: " << k.get_vendor_id() << std::endl;
+        std::cout << "      product_id: " << k.get_product_id() << std::endl;
+        std::cout << "      country_code: " << k.get_country_code() << std::endl;
+        std::cout << "      keyboard_type: " << v << std::endl;
         std::cout << "    }" << std::endl;
       }
     }
