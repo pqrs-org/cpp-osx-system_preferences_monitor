@@ -1,16 +1,21 @@
-#define CATCH_CONFIG_MAIN
-#include <catch2/catch.hpp>
-
+#include <boost/ut.hpp>
 #include <pqrs/osx/system_preferences_monitor.hpp>
 
-TEST_CASE("monitor") {
-  auto time_source = std::make_shared<pqrs::dispatcher::hardware_time_source>();
-  auto dispatcher = std::make_shared<pqrs::dispatcher::dispatcher>(time_source);
+int main(void) {
+  using namespace boost::ut;
+  using namespace boost::ut::literals;
 
-  auto monitor = std::make_shared<pqrs::osx::system_preferences_monitor>(dispatcher);
+  "monitor"_test = [] {
+    auto time_source = std::make_shared<pqrs::dispatcher::hardware_time_source>();
+    auto dispatcher = std::make_shared<pqrs::dispatcher::dispatcher>(time_source);
 
-  monitor = nullptr;
+    auto monitor = std::make_shared<pqrs::osx::system_preferences_monitor>(dispatcher);
 
-  dispatcher->terminate();
-  dispatcher = nullptr;
+    monitor = nullptr;
+
+    dispatcher->terminate();
+    dispatcher = nullptr;
+  };
+
+  return 0;
 }
