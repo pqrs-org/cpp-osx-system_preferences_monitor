@@ -4,7 +4,32 @@
 
 namespace {
 auto global_wait = pqrs::make_thread_wait();
-}
+
+class async_trigger_system_preferences_changed_example final : public pqrs::dispatcher::extra::dispatcher_client {
+public:
+  async_trigger_system_preferences_changed_example(std::weak_ptr<pqrs::dispatcher::dispatcher> weak_dispatcher,
+                                                   std::shared_ptr<pqrs::osx::system_preferences_monitor> monitor)
+      : dispatcher_client(weak_dispatcher),
+        monitor_(monitor),
+        timer_(*this) {
+    timer_.start(
+        [this] {
+          monitor_->async_trigger_system_preferences_changed();
+        },
+        std::chrono::milliseconds(3000));
+  }
+
+  ~async_trigger_system_preferences_changed_example(void) {
+    detach_from_dispatcher([this] {
+      timer_.stop();
+    });
+  }
+
+private:
+  std::shared_ptr<pqrs::osx::system_preferences_monitor> monitor_;
+  pqrs::dispatcher::extra::timer timer_;
+};
+} // namespace
 
 int main(void) {
   std::signal(SIGINT, [](int) {
@@ -42,11 +67,22 @@ int main(void) {
 
   monitor->async_start(std::chrono::milliseconds(1000));
 
+// #define ENABLE_ASYNC_TRIGGER_SYSTEM_PREFERENCES_CHANGED_EXAMPLE 1
+
+#ifdef ENABLE_ASYNC_TRIGGER_SYSTEM_PREFERENCES_CHANGED_EXAMPLE
+  auto example = std::make_shared<async_trigger_system_preferences_changed_example>(dispatcher,
+                                                                                    monitor);
+#endif
+
   // ============================================================
 
   global_wait->wait_notice();
 
   // ============================================================
+
+#ifdef ENABLE_ASYNC_TRIGGER_SYSTEM_PREFERENCES_CHANGED_EXAMPLE
+  example = nullptr;
+#endif
 
   monitor = nullptr;
 

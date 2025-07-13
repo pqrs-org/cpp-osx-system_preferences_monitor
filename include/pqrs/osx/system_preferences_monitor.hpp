@@ -47,6 +47,13 @@ public:
         check_interval);
   }
 
+  // A method for forcibly retrieving the current value in case of missed events, such as during user account switches.
+  void async_trigger_system_preferences_changed(void) {
+    enqueue_to_dispatcher([this] {
+      system_preferences_changed(last_properties_);
+    });
+  }
+
 private:
   dispatcher::extra::timer timer_;
   std::shared_ptr<system_preferences::properties> last_properties_;
