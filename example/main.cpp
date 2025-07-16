@@ -52,22 +52,12 @@ int main(void) {
       std::cout << "  scroll_direction_is_natural: "
                 << properties_ptr->get_scroll_direction_is_natural()
                 << std::endl;
-
-      std::cout << "  keyboard_types: " << std::endl;
-      for (const auto& [k, v] : properties_ptr->get_keyboard_types()) {
-        std::cout << "    {" << std::endl;
-        std::cout << "      vendor_id: " << k.get_vendor_id() << std::endl;
-        std::cout << "      product_id: " << k.get_product_id() << std::endl;
-        std::cout << "      country_code: " << k.get_country_code() << std::endl;
-        std::cout << "      keyboard_type: " << v << std::endl;
-        std::cout << "    }" << std::endl;
-      }
     }
   });
 
   monitor->async_start(std::chrono::milliseconds(1000));
 
-// #define ENABLE_ASYNC_TRIGGER_SYSTEM_PREFERENCES_CHANGED_EXAMPLE 1
+  // #define ENABLE_ASYNC_TRIGGER_SYSTEM_PREFERENCES_CHANGED_EXAMPLE 1
 
 #ifdef ENABLE_ASYNC_TRIGGER_SYSTEM_PREFERENCES_CHANGED_EXAMPLE
   auto example = std::make_shared<async_trigger_system_preferences_changed_example>(dispatcher,

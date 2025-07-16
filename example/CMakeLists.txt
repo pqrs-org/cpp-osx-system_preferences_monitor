@@ -19,5 +19,6 @@ add_executable(
 target_link_libraries(
   example
   "-framework CoreFoundation"
+  "-framework IOKit"
   "-framework SystemConfiguration"
 )
