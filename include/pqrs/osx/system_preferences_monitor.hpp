@@ -33,15 +33,10 @@ public:
   void async_start(std::chrono::milliseconds check_interval) {
     timer_.start(
         [this] {
-          auto p = std::make_shared<system_preferences::properties>();
-          p->update();
+          auto p = make_current_properties();
 
           if (!last_properties_ || *last_properties_ != *p) {
-            last_properties_ = p;
-
-            enqueue_to_dispatcher([this, p] {
-              system_preferences_changed(p);
-            });
+            emit_system_preferences_changed(p);
           }
         },
         check_interval);
@@ -49,12 +44,24 @@ public:
 
   // A method for forcibly retrieving the current value in case of missed events, such as during user account switches.
   void async_trigger_system_preferences_changed(void) {
-    enqueue_to_dispatcher([this] {
-      system_preferences_changed(last_properties_);
-    });
+    emit_system_preferences_changed(make_current_properties());
   }
 
 private:
+  std::shared_ptr<system_preferences::properties> make_current_properties(void) const {
+    auto p = std::make_shared<system_preferences::properties>();
+    p->update();
+    return p;
+  }
+
+  void emit_system_preferences_changed(std::shared_ptr<system_preferences::properties> properties) {
+    last_properties_ = properties;
+
+    enqueue_to_dispatcher([this, properties] {
+      system_preferences_changed(properties);
+    });
+  }
+
   dispatcher::extra::timer timer_;
   std::shared_ptr<system_preferences::properties> last_properties_;
 };
