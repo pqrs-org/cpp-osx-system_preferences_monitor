@@ -1,7 +1,7 @@
 #include <boost/ut.hpp>
 #include <pqrs/osx/system_preferences_monitor.hpp>
 
-int main(void) {
+int main() {
   using namespace boost::ut;
   using namespace boost::ut::literals;
 

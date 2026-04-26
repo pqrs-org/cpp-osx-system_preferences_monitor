@@ -19,7 +19,7 @@ public:
         std::chrono::milliseconds(3000));
   }
 
-  ~async_trigger_system_preferences_changed_example(void) {
+  ~async_trigger_system_preferences_changed_example() {
     detach_from_dispatcher([this] {
       timer_.stop();
     });
@@ -31,7 +31,7 @@ private:
 };
 } // namespace
 
-int main(void) {
+int main() {
   std::signal(SIGINT, [](int) {
     global_wait->notify();
   });

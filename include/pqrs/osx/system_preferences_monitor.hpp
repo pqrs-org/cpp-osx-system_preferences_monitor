@@ -10,8 +10,7 @@
 #include <pqrs/dispatcher.hpp>
 #include <pqrs/osx/system_preferences.hpp>
 
-namespace pqrs {
-namespace osx {
+namespace pqrs::osx {
 class system_preferences_monitor final : public dispatcher::extra::dispatcher_client {
 public:
   // Signals (invoked from the dispatcher thread)
@@ -24,7 +23,7 @@ public:
                                                                                       timer_(*this) {
   }
 
-  virtual ~system_preferences_monitor(void) {
+  ~system_preferences_monitor() override {
     detach_from_dispatcher([this] {
       timer_.stop();
     });
@@ -43,12 +42,14 @@ public:
   }
 
   // A method for forcibly retrieving the current value in case of missed events, such as during user account switches.
-  void async_trigger_system_preferences_changed(void) {
-    emit_system_preferences_changed(make_current_properties());
+  void async_trigger_system_preferences_changed() {
+    enqueue_to_dispatcher([this] {
+      emit_system_preferences_changed(make_current_properties());
+    });
   }
 
 private:
-  std::shared_ptr<system_preferences::properties> make_current_properties(void) const {
+  std::shared_ptr<system_preferences::properties> make_current_properties() const {
     auto p = std::make_shared<system_preferences::properties>();
     p->update();
     return p;
@@ -65,5 +66,4 @@ private:
   dispatcher::extra::timer timer_;
   std::shared_ptr<system_preferences::properties> last_properties_;
 };
-} // namespace osx
-} // namespace pqrs
+} // namespace pqrs::osx
