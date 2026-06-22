@@ -11,6 +11,7 @@ cpp-osx-system_preferences_monitor depends the following classes.
 
 - [Nod](https://github.com/fr00b0/nod)
 - [pqrs::dispatcher](https://github.com/pqrs-org/cpp-dispatcher)
+- [pqrs::gsl](https://github.com/pqrs-org/cpp-gsl)
 - [pqrs::osx::system_preferences](https://github.com/pqrs-org/cpp-osx-system_preferences)
 
 ## Install

@@ -8,7 +8,7 @@ auto global_wait = pqrs::make_thread_wait();
 class async_trigger_system_preferences_changed_example final : public pqrs::dispatcher::extra::dispatcher_client {
 public:
   async_trigger_system_preferences_changed_example(std::weak_ptr<pqrs::dispatcher::dispatcher> weak_dispatcher,
-                                                   std::shared_ptr<pqrs::osx::system_preferences_monitor> monitor)
+                                                   pqrs::not_null_shared_ptr_t<pqrs::osx::system_preferences_monitor> monitor)
       : dispatcher_client(weak_dispatcher),
         monitor_(monitor),
         timer_(*this) {
@@ -19,14 +19,14 @@ public:
         std::chrono::milliseconds(3000));
   }
 
-  ~async_trigger_system_preferences_changed_example() {
+  ~async_trigger_system_preferences_changed_example() override {
     detach_from_dispatcher([this] {
       timer_.stop();
     });
   }
 
 private:
-  std::shared_ptr<pqrs::osx::system_preferences_monitor> monitor_;
+  pqrs::not_null_shared_ptr_t<pqrs::osx::system_preferences_monitor> monitor_;
   pqrs::dispatcher::extra::timer timer_;
 };
 } // namespace
@@ -42,17 +42,15 @@ int main() {
   auto monitor = std::make_shared<pqrs::osx::system_preferences_monitor>(dispatcher);
 
   monitor->system_preferences_changed.connect([](auto&& properties_ptr) {
-    if (properties_ptr) {
-      std::cout << "system_preferences_changed:" << std::endl;
+    std::cout << "system_preferences_changed:" << std::endl;
 
-      std::cout << "  use_fkeys_as_standard_function_keys: "
-                << properties_ptr->get_use_fkeys_as_standard_function_keys()
-                << std::endl;
+    std::cout << "  use_fkeys_as_standard_function_keys: "
+              << properties_ptr->get_use_fkeys_as_standard_function_keys()
+              << std::endl;
 
-      std::cout << "  scroll_direction_is_natural: "
-                << properties_ptr->get_scroll_direction_is_natural()
-                << std::endl;
-    }
+    std::cout << "  scroll_direction_is_natural: "
+              << properties_ptr->get_scroll_direction_is_natural()
+              << std::endl;
   });
 
   monitor->async_start(std::chrono::milliseconds(1000));
