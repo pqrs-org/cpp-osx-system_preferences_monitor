@@ -6,17 +6,23 @@ namespace {
 auto global_wait = pqrs::make_thread_wait();
 
 class async_trigger_system_preferences_changed_example final : public pqrs::dispatcher::extra::dispatcher_client {
+private:
+  // Keep the guard first so member initialization failures also detach.
+  pqrs::dispatcher::extra::dispatcher_client_constructor_exception_guard dispatcher_client_constructor_exception_guard_{*this};
+
 public:
   async_trigger_system_preferences_changed_example(std::weak_ptr<pqrs::dispatcher::dispatcher> weak_dispatcher,
                                                    pqrs::not_null_shared_ptr_t<pqrs::osx::system_preferences_monitor> monitor)
       : dispatcher_client(weak_dispatcher),
         monitor_(monitor),
         timer_(*this) {
-    timer_.start(
-        [this] {
-          monitor_->async_trigger_system_preferences_changed();
-        },
-        std::chrono::milliseconds(3000));
+    dispatcher_client_constructor_exception_guard_.initialize([&] {
+      timer_.start(
+          [this] {
+            monitor_->async_trigger_system_preferences_changed();
+          },
+          std::chrono::milliseconds(3000));
+    });
   }
 
   ~async_trigger_system_preferences_changed_example() override {
