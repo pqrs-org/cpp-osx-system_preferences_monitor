@@ -24,8 +24,8 @@ public:
 
   // Methods
 
-  system_preferences_monitor(std::weak_ptr<dispatcher::dispatcher> weak_dispatcher) : dispatcher_client(weak_dispatcher),
-                                                                                      timer_(*this) {
+  system_preferences_monitor(std::weak_ptr<dispatcher::dispatcher> weak_dispatcher)
+      : dispatcher_client(weak_dispatcher) {
     dispatcher_client_constructor_exception_guard_.initialize();
   }
 
@@ -70,7 +70,8 @@ private:
   }
 
   std::shared_ptr<system_preferences::properties> last_properties_;
+
   // Construct after potentially throwing members; destruction requires detach.
-  dispatcher::extra::timer timer_;
+  dispatcher::extra::timer timer_{*this};
 };
 } // namespace pqrs::osx
