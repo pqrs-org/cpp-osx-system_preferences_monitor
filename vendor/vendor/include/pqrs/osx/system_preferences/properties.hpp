@@ -15,8 +15,6 @@
 namespace pqrs::osx::system_preferences {
 class properties final {
 public:
-  properties() noexcept = default;
-
   [[nodiscard]] bool get_use_fkeys_as_standard_function_keys() const noexcept {
     return use_fkeys_as_standard_function_keys_;
   }
@@ -76,8 +74,8 @@ public:
   [[nodiscard]] bool operator==(const properties& other) const noexcept = default;
 
 private:
-  bool use_fkeys_as_standard_function_keys_ = false;
-  bool scroll_direction_is_natural_ = true;
+  bool use_fkeys_as_standard_function_keys_{false};
+  bool scroll_direction_is_natural_{true};
 };
 } // namespace pqrs::osx::system_preferences
 
